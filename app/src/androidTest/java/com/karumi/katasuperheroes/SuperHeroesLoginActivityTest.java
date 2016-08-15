@@ -30,8 +30,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import it.cosenonjaviste.daggermock.DaggerMockRule;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.VerificationModes.times;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.toPackage;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -60,11 +72,38 @@ public class SuperHeroesLoginActivityTest {
 
     @Test
     public void showsErrorMessageIfWrongCredentials() {
+        activityRule.launchActivity(null);
+        onView(withId(R.id.login_email))
+                .perform(typeText("notok@google.com"), closeSoftKeyboard());
+        onView(withId(R.id.action_login))
+                .perform(click());
+        onView(withId(android.support.design.R.id.snackbar_text)).check(matches(isDisplayed()));
+    }
 
+    @Test
+    public void showsErrorMessageIfWrongCredentialsIsIntent() {
+        activityRule.launchActivity(null);
+        onView(withId(R.id.login_email))
+                .perform(typeText("notok@google.com"), closeSoftKeyboard());
+        onView(withId(R.id.action_login))
+                .perform(click());
+        intended(toPackage("com.karumi.katasuperheroes"), times(0));
     }
 
     @Test
     public void openSuperHeroesIfValidCredentials() {
+        activityRule.launchActivity(null);
+        onView(withId(R.id.login_email))
+                .perform(typeText("ok@google.com"), closeSoftKeyboard());
+        onView(withId(R.id.login_password))
+                .perform(typeText("supersecure"), closeSoftKeyboard());
+
+        Mockito.when(repository.login("ok@google.com", "supersecure")).thenReturn(true);
+
+        onView(withId(R.id.action_login))
+                .perform(click());
+        intended(toPackage( "com.karumi.katasuperheroes"), times(1));
+        //or intended(hasComponent(SuperHeroesLoginActivity.class.getCanonicalName()));
 
     }
 
