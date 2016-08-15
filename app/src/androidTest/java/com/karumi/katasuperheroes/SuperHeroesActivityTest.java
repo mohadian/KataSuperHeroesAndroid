@@ -38,8 +38,11 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -69,6 +72,15 @@ public class SuperHeroesActivityTest {
     startActivity();
 
     onView(withText("¯\\_(ツ)_/¯")).check(matches(isDisplayed()));
+  }
+
+  @Test public void showsTheToolbar(){
+    givenThereAreNoSuperHeroes();
+
+    startActivity();
+
+    //check if the toolbar is displayed and it has a childview with the mentioned text
+    onView(allOf(withId(R.id.toolbar), hasDescendant( withText("Kata Super Heroes")))).check(matches(isDisplayed()));
   }
 
   private void givenThereAreNoSuperHeroes() {
